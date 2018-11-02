@@ -1,0 +1,21 @@
+{
+  "defaultConnection": "default",
+  "connections": {
+    "default": {
+      "connector": "strapi-hook-mongoose",
+      "settings": {
+        "client": "mongo",
+        "host": "${process.env.DB_HOST}",
+        "srv": false,
+        "port": "${process.env.DB_PORT}",
+        "database": "${process.env.DB_DATABASE}",
+        "username": "${process.env.DB_USERNAME}",
+        "password": "${process.env.DB_PASSWORD}"
+      },
+      "options": {
+        "authenticationDatabase": "${process.env.DB_DATABASE}",
+        "ssl": false
+      }
+    }
+  }
+}

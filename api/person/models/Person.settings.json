@@ -1,0 +1,84 @@
+{
+  "connection": "default",
+  "collectionName": "person",
+  "info": {
+    "name": "person",
+    "description": ""
+  },
+  "options": {
+    "timestamps": true
+  },
+  "attributes": {
+    "handler": {
+      "default": "",
+      "maxLength": 15,
+      "unique": true,
+      "minLength": 2,
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "default": "",
+      "maxLength": 50,
+      "minLength": 2,
+      "type": "string",
+      "required": true
+    },
+    "photo": {
+      "default": "",
+      "type": "text"
+    },
+    "office": {
+      "default": "",
+      "type": "enumeration",
+      "enum": [
+        "London",
+        "Madrid",
+        "Remote",
+        "San Fernando",
+        "Seattle",
+        ""
+      ]
+    },
+    "role": {
+      "default": "",
+      "type": "string"
+    },
+    "country": {
+      "default": "",
+      "type": "enumeration",
+      "enum": [
+        "Spain",
+        "UK",
+        "USA",
+        ""
+      ]
+    },
+    "seniority": {
+      "default": "",
+      "type": "string"
+    },
+    "bio": {
+      "default": "",
+      "type": "text"
+    },
+    "clients": {
+      "default": "",
+      "type": "json"
+    },
+    "technologies": {
+      "default": "",
+      "type": "json"
+    },
+    "socialLinks": {
+      "default": "",
+      "type": "json"
+    },
+    "technicalLead": {
+      "model": "person"
+    },
+    "principal": {
+      "model": "person"
+    }
+  }
+}
