@@ -5,15 +5,15 @@
       "connector": "strapi-hook-mongoose",
       "settings": {
         "client": "mongo",
-        "host": "${process.env.DB_HOST}",
+        "host": "${process.env.DATABASE_HOST}",
         "srv": false,
-        "port": "${process.env.DB_PORT}",
-        "database": "${process.env.DB_DATABASE}",
-        "username": "${process.env.DB_USERNAME}",
-        "password": "${process.env.DB_PASSWORD}"
+        "port": "${process.env.DATABASE_PORT}",
+        "database": "${process.env.DATABASE_NAME}",
+        "username": "${process.env.DATABASE_USERNAME}",
+        "password": "${process.env.DATABASE_PASSWORD}"
       },
       "options": {
-        "authenticationDatabase": "${process.env.DB_DATABASE}",
+        "authenticationDatabase": "${process.env.DATABASE_AUTHENTICATION_DATABASE}",
         "ssl": false
       }
     }
