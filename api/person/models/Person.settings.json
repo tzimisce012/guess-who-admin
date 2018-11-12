@@ -74,11 +74,15 @@
       "default": "",
       "type": "json"
     },
-    "technicalLead": {
-      "model": "person"
+    "team": {
+      "default": "",
+      "maxLength": 20,
+      "type": "string"
     },
     "principal": {
-      "model": "person"
+      "default": "",
+      "maxLength": 20,
+      "type": "string"
     }
   }
 }
