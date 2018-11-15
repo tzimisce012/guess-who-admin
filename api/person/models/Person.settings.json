@@ -44,16 +44,6 @@
       "default": "",
       "type": "string"
     },
-    "country": {
-      "default": "",
-      "type": "enumeration",
-      "enum": [
-        "Spain",
-        "UK",
-        "USA",
-        ""
-      ]
-    },
     "seniority": {
       "default": "",
       "type": "string"
@@ -82,6 +72,11 @@
     "principal": {
       "default": "",
       "maxLength": 20,
+      "type": "string"
+    },
+    "country": {
+      "default": "",
+      "maxLength": 15,
       "type": "string"
     }
   }
