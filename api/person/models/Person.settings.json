@@ -11,7 +11,7 @@
   "attributes": {
     "handler": {
       "default": "",
-      "maxLength": 15,
+      "maxLength": 25,
       "unique": true,
       "minLength": 2,
       "type": "string",
