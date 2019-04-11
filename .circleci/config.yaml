@@ -22,3 +22,12 @@ version: 2
             else
               gcloud --quiet app deploy
             fi
+
+  workflows:
+    version: 2
+    deploy:
+      jobs:
+        - deploy:
+            filters:
+              branches:
+                only: master
