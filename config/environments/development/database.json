@@ -2,20 +2,16 @@
   "defaultConnection": "default",
   "connections": {
     "default": {
-      "connector": "strapi-hook-mongoose",
+      "connector": "strapi-hook-bookshelf",
       "settings": {
-        "client": "mongo",
-        "host": "${process.env.DATABASE_HOST}",
-        "srv": false,
-        "port": "${process.env.DATABASE_PORT}",
-        "database": "${process.env.DATABASE_NAME}",
-        "username": "${process.env.DATABASE_USERNAME}",
-        "password": "${process.env.DATABASE_PASSWORD}"
+        "client": "postgres",
+        "host": "localhost",
+        "port": 5432,
+        "database": "postgres",
+        "username": "postgres",
+        "password": "postgres"
       },
-      "options": {
-        "authenticationDatabase": "${process.env.DATABASE_AUTHENTICATION_DATABASE}",
-        "ssl": false
-      }
+      "options": {}
     }
   }
 }

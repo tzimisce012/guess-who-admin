@@ -1,8 +1,6 @@
 import { LOCATION_CHANGE } from 'react-router-redux';
 import { fork, put, call, takeLatest, take, cancel, select } from 'redux-saga/effects';
 import request from 'utils/request';
-
-
 import { getModelEntriesSucceeded, loadedModels, submitSucceeded } from './actions';
 import { GET_MODEL_ENTRIES, LOAD_MODELS, ON_SUBMIT } from './constants';
 import { makeSelectModifiedSchema } from './selectors';
@@ -30,11 +28,13 @@ export function* getModels() {
   }
 }
 
-export function* submit() {
+export function* submit(action) {
   try {
     const schema = yield select(makeSelectModifiedSchema());
     yield call(request, '/content-manager/models', { method: 'PUT', body: { schema } });
-
+    
+    action.context.emitEvent('didSaveContentTypeLayout');  
+    
     yield put(submitSucceeded());
   } catch(err) {
     // Silent
@@ -51,7 +51,6 @@ export function* defaultSaga() {
   yield take(LOCATION_CHANGE);
 
   yield cancel(loadModelsWatcher);
-  yield cancel(loadedModelsWatcher);
   yield cancel(loadEntriesWatcher);
 }
 

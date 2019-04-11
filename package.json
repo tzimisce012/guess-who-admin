@@ -5,28 +5,33 @@
   "description": "A Strapi application.",
   "main": "./server.js",
   "scripts": {
+    "prestart": "npm run gcp-build",
     "setup": "cd admin && npm run setup",
     "start": "node server.js",
     "strapi": "node_modules/strapi/bin/strapi.js",
     "lint": "node_modules/.bin/eslint api/**/*.js config/**/*.js plugins/**/*.js",
+    "gcp-build": "node node_modules/strapi/lib/utils/post-install.js",
     "postinstall": "node node_modules/strapi/lib/utils/post-install.js"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
-    "eslint": "^3.12.2",
+    "eslint": "^4.19.1",
     "eslint-config-airbnb": "^13.0.0",
-    "eslint-plugin-import": "^2.2.0",
-    "eslint-plugin-react": "^6.8.0"
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-react": "^7.7.0"
   },
   "dependencies": {
     "dotenv": "^6.1.0",
-    "lodash": "4.17.11",
-    "strapi": "3.0.0-alpha.14.5",
-    "strapi-hook-mongoose": "3.0.0-alpha.14.5"
+    "lodash": "^4.17.5",
+    "strapi": "3.0.0-alpha.25.2",
+    "strapi-hook-bookshelf": "3.0.0-alpha.25.2",
+    "strapi-hook-knex": "3.0.0-alpha.25.2",
+    "knex": "latest",
+    "pg": "7.9.0"
   },
   "author": {
-    "name": "calvellido",
-    "email": "",
+    "name": "dochoa",
+    "email": "daniel.ochoa@47deg.com",
     "url": ""
   },
   "maintainers": [
@@ -34,15 +39,20 @@
       "name": "calvellido",
       "email": "",
       "url": ""
+    },
+    {
+      "name": "dochoa",
+      "email": "daniel.ochoa@47deg.com",
+      "url": ""
     }
   ],
   "strapi": {
     "packageManager": "npm",
-    "uuid": "d57cb665-5c51-46d3-a526-8c557e27e6f9"
+    "uuid": "f5d6086e-4db6-4ac7-a5b1-f05d10f82ab8"
   },
   "engines": {
-    "node": ">= 9.0.0",
-    "npm": ">= 5.0.0"
+    "node": "10.x.x",
+    "npm": ">= 6.0.0"
   },
   "license": "MIT"
 }

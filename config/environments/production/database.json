@@ -2,20 +2,16 @@
   "defaultConnection": "default",
   "connections": {
     "default": {
-      "connector": "strapi-hook-mongoose",
+      "connector": "strapi-hook-bookshelf",
       "settings": {
-        "client": "mongo",
-        "uri": "${process.env.DATABASE_URI || ''}",
-        "host": "${process.env.DATABASE_HOST || '127.0.0.1'}",
-        "port": "${process.env.DATABASE_PORT || 27017}",
-        "database": "${process.env.DATABASE_NAME || 'strapi-production'}",
-        "username": "${process.env.DATABASE_USERNAME || ''}",
-        "password": "${process.env.DATABASE_PASSWORD || ''}"
+        "client": "postgres",
+        "host": "/cloudsql/${process.env.INSTANCE_CONNECTION_NAME || 'guess-who-232508:europe-west1:guess-who-database'}",
+        "port": "${process.env.DATABASE_PORT || 5432}",
+        "database": "${process.env.DATABASE_NAME || 'postgres'}",
+        "username": "${process.env.DATABASE_USERNAME || 'developer'}",
+        "password": "${process.env.DATABASE_PASSWORD || 'cxJu3RK5QXzNuf9Y'}"
       },
-      "options": {
-        "ssl": "${process.env.DATABASE_SSL || false}",
-        "authenticationDatabase": "${process.env.DATABASE_AUTHENTICATION_DATABASE || ''}"
-      }
+      "options": {}
     }
   }
 }

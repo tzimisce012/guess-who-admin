@@ -26,8 +26,23 @@ module.exports = async cb => {
     fs.readdir(path.join(basePath, 'node_modules'), async (err, node_modules) => {
       // get all upload provider
       const uploads = _.filter(node_modules, (node_module) => {
-        return _.startsWith(node_module, ('strapi-upload'));
+        // DEPRECATED strapi-upload-* will be remove in next version
+        return _.startsWith(node_module, 'strapi-provider-upload') || _.startsWith(node_module, 'strapi-upload');
       });
+
+      node_modules.filter((node_module) => {
+        return node_module.startsWith('@');
+      })
+        .forEach((orga) => {
+          const node_modules = fs.readdirSync(path.join(basePath, 'node_modules', orga));
+
+          node_modules.forEach((node_module) => {
+            // DEPRECATED strapi-email-* will be remove in next version
+            if (_.startsWith(node_module, 'strapi-provider-upload') || _.startsWith(node_module, 'strapi-upload')) {
+              uploads.push(`${orga}/${node_module}`);
+            }
+          });
+        });
 
       // mount all providers to get configs
       _.forEach(uploads, (node_module) => {
@@ -53,7 +68,7 @@ module.exports = async cb => {
         }
       } catch (err) {
         strapi.log.error(`Can't load ${config.provider} upload provider.`);
-        strapi.log.warn(`Please install strapi-upload-${config.provider} --save in ${path.join(strapi.config.appPath, 'plugins', 'upload')} folder.`);
+        strapi.log.warn(`Please install strapi-provider-upload-${config.provider} --save in ${path.join(strapi.config.appPath, 'plugins', 'upload')} folder.`);
         strapi.stop();
       }
 

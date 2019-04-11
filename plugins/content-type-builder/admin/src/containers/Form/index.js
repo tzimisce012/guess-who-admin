@@ -23,6 +23,7 @@ import {
   size,
   split,
   take,
+  toLower,
   toNumber,
   replace,
 } from 'lodash';
@@ -31,13 +32,13 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { router } from 'app';
 
-import { temporaryContentTypeFieldsUpdated, storeTemporaryMenu } from 'containers/App/actions';
-import { addAttributeToContentType, addAttributeRelationToContentType, editContentTypeAttribute, editContentTypeAttributeRelation, updateContentType } from 'containers/ModelPage/actions';
+import { temporaryContentTypeFieldsUpdated, storeTemporaryMenu } from '../App/actions';
+import { addAttributeToContentType, addAttributeRelationToContentType, editContentTypeAttribute, editContentTypeAttributeRelation, updateContentType } from '../ModelPage/actions';
 
-import AttributeCard from 'components/AttributeCard';
-import InputCheckboxWithNestedInputs from 'components/InputCheckboxWithNestedInputs';
-import PopUpForm from 'components/PopUpForm';
-import PopUpRelations from 'components/PopUpRelations';
+import AttributeCard from '../../components/AttributeCard';
+import InputCheckboxWithNestedInputs from '../../components/InputCheckboxWithNestedInputs';
+import PopUpForm from '../../components/PopUpForm';
+import PopUpRelations from '../../components/PopUpRelations';
 
 // Utils
 import { checkFormValidity } from '../../utils/formValidations';
@@ -372,13 +373,14 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
   }
 
   goToAttributeTypeView = (attributeType) => {
+    this.context.emitEvent('didSelectContentTypeFieldType', { type: attributeType });
     const settings = attributeType === 'relation' ? 'defineRelation' : 'baseSettings';
     router.push(`${this.props.routePath}#create${this.props.modelName}::attribute${attributeType}::${settings}`);
   }
 
   handleBlur = ({ target }) => {
     if (target.name === 'name') {
-      this.props.changeInput(target.name, camelCase(target.value), includes(this.props.hash, 'edit'));
+      this.props.changeInput(target.name, toLower(camelCase(target.value)), includes(this.props.hash, 'edit'));
       if (!isEmpty(target.value)) {
         // The input name for content type doesn't have the default handleBlur validation so we need to manually remove the error
         this.props.removeContentTypeRequiredError();
@@ -460,6 +462,12 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
     let dataSucces = null;
     let cbFail;
 
+    if (redirectToChoose) {
+      this.context.emitEvent('willAddMoreFieldToContentType');
+    } else if (this.props.hash.indexOf('#edit') !== -1 && this.props.hash.indexOf('::attribute') !== -1) {
+      this.context.emitEvent('willEditFieldOfContentType');
+    }
+
     switch (true) {
       case includes(hashArray[0], '#edit'): {
         // Check if the user is editing the attribute
@@ -489,7 +497,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
 
     return {
       ...model,
-      name: camelCase(model.name),
+      name: toLower(camelCase(model.name)),
     };
   }
 
@@ -681,6 +689,7 @@ export class Form extends React.Component { // eslint-disable-line react/prefer-
 }
 
 Form.contextTypes = {
+  emitEvent: PropTypes.func,
   plugins: PropTypes.object,
   updatePlugin: PropTypes.func,
 };

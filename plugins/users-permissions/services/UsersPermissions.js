@@ -182,7 +182,8 @@ module.exports = {
 
     for (let i = 0; i < roles.length; ++i) {
       roles[i].id = roles[i].id || roles[i]._id;
-      roles[i].nb_users = await strapi.query('user', 'users-permissions').count({ role: roles[i].id });
+
+      roles[i].nb_users = await strapi.query('user', 'users-permissions').count(strapi.utils.models.convertParams('user', { role: roles[i].id }));
     }
 
     return roles;
@@ -199,9 +200,9 @@ module.exports = {
           const prefix = curr.config.prefix;
           const path = prefix !== undefined ? `${prefix}${curr.path}` : `/${current}${curr.path}`;
           _.set(curr, 'path', path);
-          
+
           return acc.concat(curr);
-        }, []); 
+        }, []);
 
       acc[current] = routes;
 
@@ -221,7 +222,7 @@ module.exports = {
     // Aggregate first level actions.
     const appActions = Object.keys(strapi.api || {}).reduce((acc, api) => {
       Object.keys(_.get(strapi.api[api], 'controllers', {}))
-        .map(controller => {
+        .forEach(controller => {
           const actions = Object.keys(strapi.api[api].controllers[controller])
             .filter(action => _.isFunction(strapi.api[api].controllers[controller][action]))
             .map(action => `application.${controller}.${action.toLowerCase()}`);
@@ -235,7 +236,7 @@ module.exports = {
     // Aggregate plugins' actions.
     const pluginsActions = Object.keys(strapi.plugins).reduce((acc, plugin) => {
       Object.keys(strapi.plugins[plugin].controllers)
-        .map(controller => {
+        .forEach(controller => {
           const actions = Object.keys(strapi.plugins[plugin].controllers[controller])
             .filter(action => _.isFunction(strapi.plugins[plugin].controllers[controller][action]))
             .map(action => `${plugin}.${controller}.${action.toLowerCase()}`);
@@ -420,7 +421,6 @@ module.exports = {
         arrayOfPromises.push(this.updateUserRole(user, authenticated._id || authenticated.id));
       });
 
-
     return Promise.all(arrayOfPromises);
   },
 
@@ -438,8 +438,10 @@ module.exports = {
     try {
       // Disable auto-reload.
       strapi.reload.isWatching = false;
-      // Rewrite actions.json file.
-      fs.writeFileSync(actionsPath, JSON.stringify({ actions: data }), 'utf8');
+      if (!strapi.config.currentEnvironment.server.production) {
+        // Rewrite actions.json file.
+        fs.writeFileSync(actionsPath, JSON.stringify({ actions: data }), 'utf8');
+      }
       // Set value to AST to avoid restart.
       _.set(strapi.plugins['users-permissions'], 'config.actions', data);
       // Disable auto-reload.

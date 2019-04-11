@@ -1,13 +1,13 @@
 /**
- *
+ * 
  * AppLoader
- *
+ * 
  */
 
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import makeSelectApp from 'containers/App/selectors';
+import makeSelectApp from '../App/selectors';
 
 class AppLoader extends React.Component {
   shouldLoad = () => {
@@ -15,8 +15,11 @@ class AppLoader extends React.Component {
 
     return appPlugins.length !== Object.keys(mountedPlugins).length;
   }
+
   render() {
-    return this.props.children({ shouldLoad: this.shouldLoad() });
+    const { children } = this.props;
+    
+    return children({ shouldLoad: this.shouldLoad() });
   }
 }
 

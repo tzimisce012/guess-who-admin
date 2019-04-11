@@ -1,19 +1,21 @@
-import { LOCATION_CHANGE } from 'react-router-redux';
+// import { LOCATION_CHANGE } from 'react-router-redux';
 import { findIndex, get, isArray, isEmpty, includes, isNumber, isString, map } from 'lodash';
 import {
+  all,
   call,
-  cancel,
+  // cancel,
   fork,
   put,
   select,
-  take,
+  // take,
   takeLatest,
 } from 'redux-saga/effects';
-import { makeSelectSchema } from 'containers/App/selectors';
 // Utils.
 import cleanData from 'utils/cleanData';
 import request from 'utils/request';
 import templateObject from 'utils/templateObject';
+
+import { makeSelectSchema } from '../App/selectors';
 import {
   getDataSucceeded,
   setFormErrors,
@@ -34,9 +36,9 @@ function* dataGet(action) {
   try {
     const modelName = yield select(makeSelectModelName());
     const params = { source: action.source };
-    const [response] = yield [
+    const [response] = yield all([
       call(request, `/content-manager/explorer/${modelName}/${action.id}`, { method: 'GET', params }),
-    ];
+    ]);
     const pluginHeaderTitle = yield call(templateObject, { mainField: action.mainField }, response);
 
     yield put(getDataSucceeded(action.id, response, pluginHeaderTitle.mainField));
@@ -66,7 +68,7 @@ function* deleteData() {
   }
 }
 
-export function* submit() {
+export function* submit(action) {
   const currentModelName = yield select(makeSelectModelName());
   const fileRelations = yield select(makeSelectFileRelations());
   const isCreating = yield select(makeSelectIsCreating());
@@ -74,16 +76,12 @@ export function* submit() {
   const source = yield select(makeSelectSource());
   const schema = yield select(makeSelectSchema());
   let shouldAddTranslationSuffix = false;
+  
   // Remove the updated_at & created_at fields so it is updated correctly when using Postgres or MySQL db
-  if (record.updated_at) {
-    delete record.created_at;
-    delete record.updated_at;
-  }
-
-  // Remove the updatedAt & createdAt fields so it is updated correctly when using MongoDB
-  if (record.updatedAt) {
-    delete record.createdAt;
-    delete record.updatedAt;
+  const timestamps = get(schema, ['models', currentModelName, 'options', 'timestamps'], null);
+  if (timestamps) {
+    delete record[timestamps[0]];
+    delete record[timestamps[1]];
   }
 
   try {
@@ -91,8 +89,18 @@ export function* submit() {
     yield put(setLoader());
     const recordCleaned = Object.keys(record).reduce((acc, current) => {
       const attrType = source !== 'content-manager' ? get(schema, ['models', 'plugins', source, currentModelName, 'fields', current, 'type'], null) : get(schema, ['models', currentModelName, 'fields', current, 'type'], null);
-      const cleanedData = attrType === 'json' ? record[current] : cleanData(record[current], 'value', 'id');
+      let cleanedData;
 
+      switch (attrType) {
+        case 'json':
+          cleanedData = record[current];
+          break;
+        case 'date':
+          cleanedData = record[current] && record[current]._isAMomentObject === true ? record[current].format('YYYY-MM-DD HH:mm:ss') : record[current];
+          break;
+        default:
+          cleanedData = cleanData(record[current], 'value', 'id');
+      }
 
       if (isString(cleanedData) || isNumber(cleanedData)) {
         acc.append(current, cleanedData);
@@ -132,6 +140,8 @@ export function* submit() {
 
     const requestUrl = `/content-manager/explorer/${currentModelName}/${id}`;
 
+    action.context.emitEvent('willSaveEntry');
+
     // Call our request helper (see 'utils/request')
     // Pass false and false as arguments so the request helper doesn't stringify
     // the body and doesn't watch for the server to restart
@@ -142,12 +152,15 @@ export function* submit() {
       params,
     }, false, false);
 
+    action.context.emitEvent('didSaveEntry');
+
     strapi.notification.success('content-manager.success.record.save');
     // Redirect the user to the ListPage container
     yield put(submitSuccess());
 
   } catch(err) {
-    if (isArray(err.response.payload.message)) {
+    action.context.emitEvent('didNotSaveEntry', { error: err });
+    if (isArray(get(err, 'response.payload.message'))) {
       const errors = err.response.payload.message.reduce((acc, current) => {
         const error = current.messages.reduce((acc, current) => {
           if (includes(current.id, 'Auth')) {
@@ -178,13 +191,15 @@ export function* submit() {
 }
 
 function* defaultSaga() {
-  const loadDataWatcher = yield fork(takeLatest, GET_DATA, dataGet);
+  yield fork(takeLatest, GET_DATA, dataGet);
+  // TODO fix router (Other PR)
+  // const loadDataWatcher = yield fork(takeLatest, GET_DATA, dataGet);
   yield fork(takeLatest, DELETE_DATA, deleteData);
   yield fork(takeLatest, SUBMIT, submit);
 
-  yield take(LOCATION_CHANGE);
+  // yield take(LOCATION_CHANGE);
 
-  yield cancel(loadDataWatcher);
+  // yield cancel(loadDataWatcher);
 }
 
 export default defaultSaga;

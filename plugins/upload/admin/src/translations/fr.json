@@ -20,9 +20,11 @@
   "ListHeader.updated": "Modifié",
   "PluginInputFile.link": "recherchez",
   "PluginInputFile.loading": "Vos fichiers sont en train d'être téléchargés...",
-  "PluginInputFile.text": "Drag & drop vos fichiers dans cette zone ou {link} un fichier à télécharger",
+  "PluginInputFile.text": "Glissez-déposez vos fichiers dans cette zone ou {link} un fichier à télécharger",
   "notification.config.success": "Les paramètres ont été mis à jour.",
   "notification.delete.success": "Le fichier a bien été supprimé",
   "notification.dropFile.success": "Votre fichier a été téléchargé",
-  "notification.dropFiles.success": "{number} fichiers ont été téléchargées"
+  "notification.dropFiles.success": "{number} fichiers ont été téléchargées",
+  "Upload.status.sizeLimit": "{file} est plus grand que la taille limite configurée",
+  "Upload.status.disabled" : "Le téléchargement de fichier est désactivé"
 }

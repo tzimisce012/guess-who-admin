@@ -1,12 +1,14 @@
 {
   "connection": "default",
-  "collectionName": "person",
+  "collectionName": "people",
   "info": {
     "name": "person",
     "description": ""
   },
   "options": {
-    "timestamps": true
+    "increments": true,
+    "timestamps": true,
+    "comment": ""
   },
   "attributes": {
     "handler": {

@@ -11,18 +11,20 @@ import {
 } from './constants';
 
 const initialState = fromJS({
-  allowGa: true,
+  uuid: false,
   currentEnvironment: 'development',
   isLoading: true,
   layout: Map({}),
   strapiVersion: '3',
+  eventName: '',
+  shouldEmit: true,
 });
 
 function adminPageReducer(state = initialState, action) {
   switch (action.type) {
     case GET_ADMIN_DATA_SUCCEEDED:
       return state
-        .update('allowGa', () => action.data.allowGa)
+        .update('uuid', () => action.data.uuid)
         .update('currentEnvironment', () => action.data.currentEnvironment)
         .update('layout', () => Map(action.data.layout))
         .update('strapiVersion', () => action.data.strapiVersion)

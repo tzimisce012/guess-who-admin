@@ -9,6 +9,7 @@
 /* eslint-disable no-useless-escape */
 const crypto = require('crypto');
 const _ = require('lodash');
+
 const emailRegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 module.exports = {
@@ -55,12 +56,12 @@ module.exports = {
       if (!user) {
         return ctx.badRequest(null, ctx.request.admin ? [{ messages: [{ id: 'Auth.form.error.invalid' }] }] : 'Identifier or password invalid.');
       }
-      
-      if (_.get(await store.get({key: 'advanced'}), 'email_confirmation') && user.confirmed !== true) {
+
+      if (_.get(await store.get({key: 'advanced'}), 'email_confirmation') && !user.confirmed) {
         return ctx.badRequest(null, ctx.request.admin ? [{ messages: [{ id: 'Auth.form.error.confirmed' }] }] : 'Your account email is not confirmed.');
       }
 
-      if (user.blocked === true) {
+      if (user.blocked) {
         return ctx.badRequest(null, ctx.request.admin ? [{ messages: [{ id: 'Auth.form.error.blocked' }] }] : 'Your account has been blocked by the administrator.');
       }
 
@@ -147,12 +148,8 @@ module.exports = {
       key: 'grant'
     }).get();
 
-    _.defaultsDeep(grantConfig, {
-      server: {
-        protocol: 'http',
-        host: `${strapi.config.currentEnvironment.server.host}:${strapi.config.currentEnvironment.server.port}`
-      }
-    });
+    const [ protocol, host ] = strapi.config.url.split('://');
+    _.defaultsDeep(grantConfig, { server: { protocol, host } });
 
     const provider = process.platform === 'win32' ? ctx.request.url.split('\\')[2] : ctx.request.url.split('/')[2];
     const config = grantConfig[provider];
@@ -306,7 +303,7 @@ module.exports = {
         const settings = storeEmail['email_confirmation'] ? storeEmail['email_confirmation'].options : {};
 
         settings.message = await strapi.plugins['users-permissions'].services.userspermissions.template(settings.message, {
-          URL: `http://${strapi.config.currentEnvironment.server.host}:${strapi.config.currentEnvironment.server.port}/auth/email-confirmation`,
+          URL: (new URL('/auth/email-confirmation', strapi.config.url)).toString(),
           USER: _.omit(user.toJSON ? user.toJSON() : user, ['password', 'resetPasswordToken', 'role', 'provider']),
           CODE: jwt
         });
@@ -318,7 +315,7 @@ module.exports = {
         try {
           // Send an email to the user.
           await strapi.plugins['email'].services.email.send({
-            to: user.email,
+            to: (user.toJSON ? user.toJSON() : user).email,
             from: (settings.from.email && settings.from.name) ? `"${settings.from.name}" <${settings.from.email}>` : undefined,
             replyTo: settings.response_email,
             subject: settings.object,
@@ -330,8 +327,12 @@ module.exports = {
         }
       }
 
+      if (!hasAdmin) {
+        strapi.emit('didCreateFirstAdmin');
+      }
+
       ctx.send({
-        jwt,
+        jwt: !settings.email_confirmation ? jwt : undefined,
         user: _.omit(user.toJSON ? user.toJSON() : user, ['password', 'resetPasswordToken'])
       });
     } catch(err) {
@@ -344,7 +345,12 @@ module.exports = {
   emailConfirmation: async (ctx) => {
     const params = ctx.query;
 
-    const user = await strapi.plugins['users-permissions'].services.jwt.verify(params.confirmation);
+    let user;
+    try {
+      user = await strapi.plugins['users-permissions'].services.jwt.verify(params.confirmation);
+    } catch (err) {
+      return ctx.badRequest(null, 'This confirmation token is invalid.');
+    }
 
     await strapi.plugins['users-permissions'].services.user.edit(_.pick(user, ['_id', 'id']), {confirmed: true});
 

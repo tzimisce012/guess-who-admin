@@ -18,7 +18,7 @@
     },
     {
       "method": "GET",
-      "path": "/people/:_id",
+      "path": "/people/:id",
       "handler": "Person.findOne",
       "config": {
         "policies": []
@@ -34,7 +34,7 @@
     },
     {
       "method": "PUT",
-      "path": "/people/:_id",
+      "path": "/people/:id",
       "handler": "Person.update",
       "config": {
         "policies": []
@@ -42,7 +42,7 @@
     },
     {
       "method": "DELETE",
-      "path": "/people/:_id",
+      "path": "/people/:id",
       "handler": "Person.destroy",
       "config": {
         "policies": []
